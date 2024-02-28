@@ -1,5 +1,7 @@
 from copy import deepcopy
 from target_postgres import json_schema, singer
+import traceback
+import json
 
 def to_table_batches(schema, key_properties, records):
     """
@@ -96,6 +98,9 @@ def _literal_only_schema(schema):
 
 
 def _create_subtable(table_path, table_json_schema, key_prop_schemas, subtables, level):
+    print(f"Creating subtable for {table_path} with schema {table_json_schema}")
+
+    traceback.print_stack()
 
     if json_schema.is_object(table_json_schema['items']):
         new_properties = table_json_schema['items']['properties']
