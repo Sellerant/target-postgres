@@ -1,7 +1,5 @@
 from copy import deepcopy
 from target_postgres import json_schema, singer
-import traceback
-import json
 
 def to_table_batches(schema, key_properties, records):
     """

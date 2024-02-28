@@ -570,8 +570,7 @@ class PostgresTarget(SQLInterface):
             sql.Identifier(temp_table_name),
             sql.SQL(', ').join(map(sql.Identifier, columns)),
             sql.Literal(RESERVED_NULL_DEFAULT))
-                
-        cur.copy_expert(copy, csv_rows)
+
 
         pattern = re.compile(singer.LEVEL_FMT.format('[0-9]+'))
         subkeys = list(filter(lambda header: re.match(pattern, header) is not None, columns))
@@ -584,7 +583,6 @@ class PostgresTarget(SQLInterface):
                                           canonicalized_key_properties,
                                           columns,
                                           subkeys)
-                
         cur.execute(update_sql)
 
     def write_table_batch(self, cur, table_batch, metadata):
