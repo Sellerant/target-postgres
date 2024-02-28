@@ -428,6 +428,8 @@ class PostgresTarget(SQLInterface):
             sql.Identifier(self.postgres_schema),
             sql.Identifier(name))
 
+        print(create_table_sql)
+
         cur.execute(sql.SQL('{} ();').format(create_table_sql))
 
         self._set_table_metadata(cur, name, {'path': path,
@@ -565,12 +567,21 @@ class PostgresTarget(SQLInterface):
                          columns,
                          csv_rows):
 
+        print("-------------------------")
+        print(csv_rows)
+        print("-------------------------")
+
         copy = sql.SQL('COPY {}.{} ({}) FROM STDIN WITH CSV NULL AS {}').format(
             sql.Identifier(self.postgres_schema),
             sql.Identifier(temp_table_name),
             sql.SQL(', ').join(map(sql.Identifier, columns)),
             sql.Literal(RESERVED_NULL_DEFAULT))
-
+        
+        print("-------------------------")
+        print(type(cur))
+        print("-------------------------")
+        
+        cur.copy_expert(copy, csv_rows)
 
         pattern = re.compile(singer.LEVEL_FMT.format('[0-9]+'))
         subkeys = list(filter(lambda header: re.match(pattern, header) is not None, columns))
@@ -583,6 +594,11 @@ class PostgresTarget(SQLInterface):
                                           canonicalized_key_properties,
                                           columns,
                                           subkeys)
+        
+        print("-------------------------")
+        print(update_sql)
+        print("-------------------------")
+        
         cur.execute(update_sql)
 
     def write_table_batch(self, cur, table_batch, metadata):
@@ -614,6 +630,7 @@ class PostgresTarget(SQLInterface):
                 for header in csv_headers:
                     if header in row and isinstance(row[header], (dict, list)):
                         row[header] = json.dumps(row[header], default=handle_decimal)
+                        print(json.dumps(row[header]))
 
                 with io.StringIO() as out:
                     writer = csv.DictWriter(out, csv_headers)
@@ -623,6 +640,8 @@ class PostgresTarget(SQLInterface):
                 return ''
 
         csv_rows = TransformStream(transform)
+
+        print(table_batch['records'])
 
         ## Persist csv rows
         self.persist_csv_rows(cur,
@@ -827,6 +846,7 @@ class PostgresTarget(SQLInterface):
         :return: JSONSchema
         """
         _format = None
+        print(f"sql type {sql_type}")
         
         if sql_type == 'timestamp with time zone':
             json_type = 'string'

@@ -565,6 +565,7 @@ _shorthand_mapping = {
     'array': 'a'
 }
 
+
 def _type_shorthand(type_s):
     if isinstance(type_s, list):
         shorthand = ''
